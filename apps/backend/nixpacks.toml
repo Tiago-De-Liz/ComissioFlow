@@ -8,4 +8,4 @@ cmds = ["npm install"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "node ace migration:run --force && node bin/server.js"
+cmd = "node build/ace.js migration:run --force && node build/bin/server.js"
