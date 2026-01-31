@@ -1,0 +1,31 @@
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import Seller from '#models/seller'
+import Employee from '#models/employee'
+
+export default class extends BaseSeeder {
+  async run() {
+    // Get employees
+    const anaPaula = await Employee.findByOrFail('document', '234.567.890-11')
+    const pedroHenrique = await Employee.findByOrFail('document', '345.678.901-22')
+    const juliaMartins = await Employee.findByOrFail('document', '456.789.012-33')
+
+    // Create sellers with different commission rules
+    await Seller.createMany([
+      {
+        employeeId: anaPaula.id,
+        fixedValue: 200, // Manager gets R$ 200 per sale
+        percentageValue: 3, // Plus 3% of sale value
+      },
+      {
+        employeeId: pedroHenrique.id,
+        fixedValue: 500, // Senior seller: R$ 500 per sale
+        percentageValue: 5, // Plus 5%
+      },
+      {
+        employeeId: juliaMartins.id,
+        fixedValue: 300, // Junior seller: R$ 300 per sale
+        percentageValue: 4, // Plus 4%
+      },
+    ])
+  }
+}

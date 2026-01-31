@@ -1,0 +1,30 @@
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import Position from '#models/position'
+
+export default class extends BaseSeeder {
+  async run() {
+    // Create CEO position (root)
+    const ceo = await Position.create({
+      name: 'CEO',
+      parentPositionId: null,
+    })
+
+    // Create Manager position (reports to CEO)
+    const manager = await Position.create({
+      name: 'Gerente de Vendas',
+      parentPositionId: ceo.id,
+    })
+
+    // Create Seller positions (report to Manager)
+    await Position.createMany([
+      {
+        name: 'Vendedor Sênior',
+        parentPositionId: manager.id,
+      },
+      {
+        name: 'Vendedor Júnior',
+        parentPositionId: manager.id,
+      },
+    ])
+  }
+}

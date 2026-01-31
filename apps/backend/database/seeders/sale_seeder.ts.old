@@ -1,0 +1,96 @@
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import Sale from '#models/sale'
+import SaleItem from '#models/sale_item'
+import Employee from '#models/employee'
+import Seller from '#models/seller'
+import CommissionService from '#services/commission_service'
+import { DateTime } from 'luxon'
+
+export default class extends BaseSeeder {
+  async run() {
+    // Get employees and sellers
+    const pedroEmployee = await Employee.findByOrFail('document', '345.678.901-22')
+    const juliaEmployee = await Employee.findByOrFail('document', '456.789.012-33')
+
+    const pedroSeller = await Seller.findByOrFail('employeeId', pedroEmployee.id)
+    const juliaSeller = await Seller.findByOrFail('employeeId', juliaEmployee.id)
+
+    const commissionService = new CommissionService()
+
+    // Sale 1: Pedro (Senior Seller)
+    const sale1 = await Sale.create({
+      sellerId: pedroSeller.id,
+      saleDate: DateTime.now().minus({ days: 5 }),
+    })
+
+    // Add items to sale 1
+    const items1 = [
+      { description: 'Veículo - Honda Civic 2024', value: 150000 },
+      { description: 'Seguro Auto - Anual', value: 3000 },
+    ]
+
+    for (const item of items1) {
+      const commission = await commissionService.calculate(pedroSeller.id, item.value)
+      await SaleItem.create({
+        saleId: sale1.id,
+        description: item.description,
+        value: item.value,
+        sellerCommissionValue: commission.sellerCommission.totalValue,
+        sellerCommissionRule: commission.sellerCommission.rule,
+        managerId: commission.managerId,
+        managerCommissionValue: commission.managerCommission?.totalValue || 0,
+        managerCommissionRule: commission.managerCommission?.rule || null,
+      })
+    }
+
+    // Sale 2: Julia (Junior Seller)
+    const sale2 = await Sale.create({
+      sellerId: juliaSeller.id,
+      saleDate: DateTime.now().minus({ days: 2 }),
+    })
+
+    // Add items to sale 2
+    const items2 = [
+      { description: 'Veículo - Toyota Corolla 2024', value: 120000 },
+      { description: 'Acessórios Premium', value: 5000 },
+    ]
+
+    for (const item of items2) {
+      const commission = await commissionService.calculate(juliaSeller.id, item.value)
+      await SaleItem.create({
+        saleId: sale2.id,
+        description: item.description,
+        value: item.value,
+        sellerCommissionValue: commission.sellerCommission.totalValue,
+        sellerCommissionRule: commission.sellerCommission.rule,
+        managerId: commission.managerId,
+        managerCommissionValue: commission.managerCommission?.totalValue || 0,
+        managerCommissionRule: commission.managerCommission?.rule || null,
+      })
+    }
+
+    // Sale 3: Pedro (another sale)
+    const sale3 = await Sale.create({
+      sellerId: pedroSeller.id,
+      saleDate: DateTime.now(),
+    })
+
+    const items3 = [
+      { description: 'Veículo - Ford Ranger 2024', value: 200000 },
+    ]
+
+    for (const item of items3) {
+      const commission = await commissionService.calculate(pedroSeller.id, item.value)
+      await SaleItem.create({
+        saleId: sale3.id,
+        description: item.description,
+        value: item.value,
+        sellerCommissionValue: commission.sellerCommission.totalValue,
+        sellerCommissionRule: commission.sellerCommission.rule,
+        managerId: commission.managerId,
+        managerCommissionValue: commission.managerCommission?.totalValue || 0,
+        managerCommissionRule: commission.managerCommission?.rule || null,
+      })
+    }
+  }
+}

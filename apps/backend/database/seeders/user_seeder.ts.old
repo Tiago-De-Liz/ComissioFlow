@@ -1,0 +1,27 @@
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import User from '#models/user'
+
+export default class extends BaseSeeder {
+  async run() {
+    await User.updateOrCreateMany('email', [
+      {
+        name: 'Admin User',
+        email: 'admin@comissioflow.com',
+        password: 'Admin@123',
+        mustChangePassword: false,
+      },
+      {
+        name: 'Pedro Henrique',
+        email: 'pedro@comissioflow.com',
+        password: 'Pedro@123',
+        mustChangePassword: false,
+      },
+      {
+        name: 'Julia Martins',
+        email: 'julia@comissioflow.com',
+        password: 'Temp@123', // Senha temporária
+        mustChangePassword: true, // Vai ter que trocar no primeiro login
+      },
+    ])
+  }
+}

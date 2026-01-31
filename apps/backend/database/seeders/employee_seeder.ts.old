@@ -1,0 +1,62 @@
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import Employee from '#models/employee'
+import Position from '#models/position'
+import User from '#models/user'
+
+export default class extends BaseSeeder {
+  async run() {
+    // Get positions
+    const ceoPosition = await Position.findByOrFail('name', 'CEO')
+    const managerPosition = await Position.findByOrFail('name', 'Gerente de Vendas')
+    const seniorSellerPosition = await Position.findByOrFail('name', 'Vendedor Sênior')
+    const juniorSellerPosition = await Position.findByOrFail('name', 'Vendedor Júnior')
+
+    // Get users (created by user_seeder)
+    const pedroUser = await User.findByOrFail('email', 'pedro@comissioflow.com')
+    const juliaUser = await User.findByOrFail('email', 'julia@comissioflow.com')
+
+    // Create employees
+    await Employee.createMany([
+      {
+        name: 'Carlos Eduardo',
+        document: '123.456.789-00',
+        positionId: ceoPosition.id,
+        isActive: true,
+        userId: null, // CEO não tem acesso ao sistema (exemplo)
+        email: null,
+      },
+      {
+        name: 'Ana Paula',
+        document: '234.567.890-11',
+        positionId: managerPosition.id,
+        isActive: true,
+        userId: null, // Gerente sem acesso (exemplo)
+        email: null,
+      },
+      {
+        name: 'Pedro Henrique',
+        document: '345.678.901-22',
+        positionId: seniorSellerPosition.id,
+        isActive: true,
+        userId: pedroUser.id, // Pedro tem acesso ao sistema
+        email: 'pedro@comissioflow.com',
+      },
+      {
+        name: 'Julia Martins',
+        document: '456.789.012-33',
+        positionId: juniorSellerPosition.id,
+        isActive: true,
+        userId: juliaUser.id, // Julia tem acesso (vai precisar trocar senha)
+        email: 'julia@comissioflow.com',
+      },
+      {
+        name: 'Lucas Oliveira',
+        document: '567.890.123-44',
+        positionId: juniorSellerPosition.id,
+        isActive: false, // Inactive employee sem acesso
+        userId: null,
+        email: null,
+      },
+    ])
+  }
+}
